@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
         const newQuoteText = newQuote.value
         const newAutherText = author.value
         let formData = {
-            newQuote: newQuoteText,
-            newAuthor: newAutherText
+            quote: newQuoteText,
+            author: newAutherText
         }
         newQuote.value = ''
         author.value = ''
@@ -32,12 +32,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
        //add the new quote
         quotesArray.push({
             id: quotesArray.length,
-            author: formData.newAuthor,
-            quote: formData.newQuote,
+            author: formData.author,
+            quote: formData.quote,
             likes: []
         })
        //loop through the new array with added quote and author
        loopThroughQuotes()
+       addQuote(formData)
+    }
+    function deleteBtnEventListener(btn, li){
+        btn.addEventListener('click', ()=>{
+            li.remove()
+        })
     }
     /***Render to DOM */
     function renderQuote(quote){
@@ -74,6 +80,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         blockquote.appendChild(deleteBtn)
         //append to DOM
         quoteContainer.appendChild(li)
+        deleteBtnEventListener(deleteBtn, li)
     }
     /***Fetch Request */
     function getQuotes(){
@@ -83,6 +90,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
             quotesArray = quotes
             loopThroughQuotes()
         })
+    }
+    function addQuote(quote){
+        fetch('http://localhost:3000/quotes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body:JSON.stringify(quote)
+        })
+        .then(res => res.json())
+        .then(quote => console.log('quote', quote))
     }
     /***initialize */
     function init(){
