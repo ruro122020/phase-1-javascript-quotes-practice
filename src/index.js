@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         })
     }
+    function postLikes (){}
     /***initialize */
     function init() {
         getQuotes()
