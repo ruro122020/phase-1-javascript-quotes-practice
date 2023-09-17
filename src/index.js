@@ -1,14 +1,14 @@
-document.addEventListener('DOMContentLoaded', ()=>{
+document.addEventListener('DOMContentLoaded', () => {
     /***Global Varaibls */
     let quotesArray;
 
     /***Helper Functions */
-    function loopThroughQuotes(){
+    function loopThroughQuotes() {
         quotesArray.forEach(quote => {
             renderQuote(quote)
         });
     }
-    function getDataFrom (){
+    function getDataFrom() {
         const newQuote = document.getElementById('new-quote')
         const author = document.getElementById('author')
         const newQuoteText = newQuote.value
@@ -26,27 +26,25 @@ document.addEventListener('DOMContentLoaded', ()=>{
     document.querySelector('#new-quote-form').addEventListener('submit', handleSubmit)
 
     /***Handle Events */
-    function handleSubmit(e){
+    function handleSubmit(e) {
         e.preventDefault()
-       const formData =  getDataFrom()
-       //add the new quote
-        quotesArray.push({
-            id: quotesArray.length,
+        const formData = getDataFrom()
+        const quoteObj = {
             author: formData.author,
             quote: formData.quote,
             likes: []
-        })
-       //loop through the new array with added quote and author
-       loopThroughQuotes()
-       addQuote(formData)
+        }
+        //add the new quote to server 
+        addQuote(quoteObj)
     }
-    function deleteBtnEventListener(btn, li){
-        btn.addEventListener('click', ()=>{
+    function deleteBtnEventListener(btn, li, id) {
+        btn.addEventListener('click', () => {
             li.remove()
+            deleteQuote(id)
         })
     }
     /***Render to DOM */
-    function renderQuote(quote){
+    function renderQuote(quote) {
         const quoteContainer = document.querySelector('#quote-list')
         //create elements
         const li = document.createElement('li')
@@ -67,7 +65,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
         //set text
         p.textContent = quote.quote
         footer.textContent = quote.author
-        span.textContent = quote.likes.length
+        // span.textContent = quote.likes.length
+        console.log('quote.likes array', quote.likes.length)
         likeBtn.textContent = `Likes: ${span.textContent}`
         deleteBtn.textContent = 'Delete'
         //append to li
@@ -80,31 +79,45 @@ document.addEventListener('DOMContentLoaded', ()=>{
         blockquote.appendChild(deleteBtn)
         //append to DOM
         quoteContainer.appendChild(li)
-        deleteBtnEventListener(deleteBtn, li)
+        deleteBtnEventListener(deleteBtn, li, quote.id)
+
+
     }
     /***Fetch Request */
-    function getQuotes(){
+    function getQuotes() {
         fetch('http://localhost:3000/quotes?_embed=likes')
-        .then(res => res.json())
-        .then(quotes =>{
-            quotesArray = quotes
-            loopThroughQuotes()
-        })
+            .then(res => res.json())
+            .then(quotes => {
+                quotesArray = quotes
+                loopThroughQuotes()
+            })
     }
-    function addQuote(quote){
+    function addQuote(quote) {
         fetch('http://localhost:3000/quotes', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body:JSON.stringify(quote)
+            body: JSON.stringify(quote)
         })
-        .then(res => res.json())
-        .then(quote => console.log('quote', quote))
+            .then(res => res.json())
+            .then(quote => {
+                console.log('quote in addQuote fetch', quote)
+                renderQuote(quote)
+            })
+    }
+    function deleteQuote(id) {
+        fetch(`http://localhost:3000/quotes/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
     }
     /***initialize */
-    function init(){
+    function init() {
         getQuotes()
     }
     init()
