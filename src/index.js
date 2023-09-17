@@ -1,26 +1,46 @@
 document.addEventListener('DOMContentLoaded', ()=>{
     /***Global Varaibls */
     let quotesArray;
+
     /***Helper Functions */
     function loopThroughQuotes(){
         quotesArray.forEach(quote => {
             renderQuote(quote)
         });
     }
+    function getDataFrom (){
+        const newQuote = document.getElementById('new-quote')
+        const author = document.getElementById('author')
+        const newQuoteText = newQuote.value
+        const newAutherText = author.value
+        let formData = {
+            newQuote: newQuoteText,
+            newAuthor: newAutherText
+        }
+        newQuote.value = ''
+        author.value = ''
+        return formData
+    }
+
+    /***Events */
+    document.querySelector('#new-quote-form').addEventListener('submit', handleSubmit)
+
+    /***Handle Events */
+    function handleSubmit(e){
+        e.preventDefault()
+       const formData =  getDataFrom()
+       //add the new quote
+        quotesArray.push({
+            id: quotesArray.length,
+            author: formData.newAuthor,
+            quote: formData.newQuote,
+            likes: []
+        })
+       //loop through the new array with added quote and author
+       loopThroughQuotes()
+    }
     /***Render to DOM */
     function renderQuote(quote){
-        /*
-        Each quotes should have this structure:
-        <li class='quote-card'>
-        <blockquote class="blockquote">
-            <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-            <footer class="blockquote-footer">Someone famous</footer>
-            <br>
-            <button class='btn-success'>Likes: <span>0</span></button>
-            <button class='btn-danger'>Delete</button>
-        </blockquote>
-        </li>
-        */
         const quoteContainer = document.querySelector('#quote-list')
         //create elements
         const li = document.createElement('li')
