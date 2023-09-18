@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return formData
     }
 
+
     /***Events */
     document.querySelector('#new-quote-form').addEventListener('submit', handleSubmit)
 
@@ -43,9 +44,24 @@ document.addEventListener('DOMContentLoaded', () => {
             deleteQuote(id)
         })
     }
+    function likesBtnEventListener(btn, quote) {
+        btn.addEventListener('click', () => {
+            const likesObj = {
+                quoteId: quote.id
+            }
+            postLikes(likesObj)
+            quote.likes.push(likesObj)
+            let foundspan = document.querySelector(`#span-${quote.id}`)
+            foundspan.innerText = quote.likes.length
+
+        })
+
+    }
     /***Render to DOM */
     function renderQuote(quote) {
+        //check if the 
         const quoteContainer = document.querySelector('#quote-list')
+
         //create elements
         const li = document.createElement('li')
         const blockquote = document.createElement('blockquote')
@@ -62,12 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
         footer.className = 'blockquote-footer'
         likeBtn.className = 'btn-success'
         deleteBtn.textContent = 'btn-danger'
+        span.id = `span-${quote.id}`
         //set text
         p.textContent = quote.quote
         footer.textContent = quote.author
-        // span.textContent = quote.likes.length
-        console.log('quote.likes array', quote.likes.length)
-        likeBtn.textContent = `Likes: ${span.textContent}`
+        span.innerText = quote.likes.length
+
+        console.log('span',)
+        likeBtn.textContent = `Likes: `
         deleteBtn.textContent = 'Delete'
         //append to li
         li.append(blockquote)
@@ -77,9 +95,12 @@ document.addEventListener('DOMContentLoaded', () => {
         blockquote.appendChild(br)
         blockquote.appendChild(likeBtn)
         blockquote.appendChild(deleteBtn)
+        likeBtn.appendChild(span)
         //append to DOM
         quoteContainer.appendChild(li)
         deleteBtnEventListener(deleteBtn, li, quote.id)
+        likesBtnEventListener(likeBtn, quote)
+
 
 
     }
@@ -116,7 +137,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         })
     }
-    function postLikes (){}
+    function postLikes(likeObj) {
+        fetch('http://localhost:3000/likes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(likeObj)
+        })
+
+    }
     /***initialize */
     function init() {
         getQuotes()
